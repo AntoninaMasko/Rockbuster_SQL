@@ -1,0 +1,10 @@
+WITH total_amount_paid_cte (customer_id, first_name, last_name, country, city, total_amount_paid) AS
+	(SELECT
+		customer.customer_id,
+		customer.first_name,
+		customer.last_name,
+		country.country AS country,
+		city.city AS city,
+		SUM(payment.amount) AS total_amount_paid
+	FROM customer
+	INNER JOIN address ON customer.address_id = address.address_id
