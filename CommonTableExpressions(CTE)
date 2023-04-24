@@ -25,5 +25,53 @@ SELECT
 	AVG (total_amount_paid) AS average
 FROM total_amount_paid_cte;
 
+
+
+WITH top_5_customers_cte (customer_id, first_name, last_name, country, city, total_amount_paid) AS
+	(SELECT
+		customer.customer_id,
+		customer.first_name,
+		customer.last_name,
+		country.country AS country,
+		city.city AS city,
+		SUM(payment.amount) AS total_amount_paid
+	FROM customer
+	INNER JOIN address ON customer.address_id = address.address_id
+	INNER JOIN city ON address.city_id = city.city_id
+	INNER JOIN country ON city.country_id = country.country_id
+	INNER JOIN payment ON customer.customer_id = payment.customer_id
+	WHERE
+		country.country IN ('India', 'China', 'United States', 'Japan', 'Mexico', 
+			'Brazil', 'Russian Federation', 'Philippines', 'Turkey', 'Indonesia')
+		AND
+		city.city IN ('Aurora', 'Acua', 'Citrus Heights', 'Iwaki', 'Ambattur', 'Shanwei',
+			'So Leopoldo', 'Teboksary', 'Tianjin', 'Cianjur')
+	GROUP BY customer.customer_id, country.country, city.city
+	ORDER BY total_amount_paid DESC
+	LIMIT 5)
+
+SELECT 
+	country.country,
+	COUNT(DISTINCT customer.customer_id) AS all_customer_count,
+	COUNT(DISTINCT top_5_customers_cte.customer_id) AS top_customer_count
+FROM customer
+INNER JOIN address ON customer.address_id = address.address_id
+INNER JOIN city ON address.city_id = city.city_id
+INNER JOIN country ON city.country_id = country.country_id
+INNER JOIN top_5_customer_cte ON country.country = top_5_customers_cte.country
+
+GROUP BY country.country
+ORDER BY
+	all_customer_count DESC,
+	top_customer_count DESC;
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 	
